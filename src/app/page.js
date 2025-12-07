@@ -17,7 +17,7 @@ export default function Home() {
       </div>
 
       {/* Hero Section */}
-      <section className="pt-12 pb-20 px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="pt-12 pb-8 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-100/80 dark:bg-cyan-900/50 backdrop-blur-sm rounded-full text-cyan-700 dark:text-cyan-300 text-sm font-medium mb-8 border border-cyan-200 dark:border-cyan-700">
             <span className="text-lg">🌊</span>
@@ -53,32 +53,9 @@ export default function Home() {
               </svg>
             </a>
           </div>
-
-          {/* Stats - Ocean themed */}
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-            <div className="p-4 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-cyan-200 dark:border-cyan-800">
-              <div className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">10K+</div>
-              <div className="text-gray-600 dark:text-gray-400 text-sm">Sailors Aboard</div>
-            </div>
-            <div className="p-4 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-cyan-200 dark:border-cyan-800">
-              <div className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">50K+</div>
-              <div className="text-gray-600 dark:text-gray-400 text-sm">Voyages Completed</div>
-            </div>
-            <div className="p-4 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-cyan-200 dark:border-cyan-800">
-              <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">4.9⭐</div>
-              <div className="text-gray-600 dark:text-gray-400 text-sm">Crew Rating</div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Wave divider */}
-      <div className="relative h-24 overflow-hidden">
-        <svg className="absolute bottom-0 w-full h-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-                className="fill-white dark:fill-slate-800"/>
-        </svg>
-      </div>
 
       {/* Features Section - Ocean themed */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-800">
