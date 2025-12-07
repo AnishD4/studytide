@@ -2,29 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import "./Navigation.css";
 
-const mainNavItems = [
+// Public pages - visible without login
+const publicNavItems = [
   { href: "/", label: "Home", icon: "🏠" },
+];
+
+// Protected pages - only visible when logged in
+const protectedNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/assignments", label: "Assignments", icon: "📚" },
-  { href: "/study", label: "Test", icon: "🧠" },
-  { href: "/flashcards", label: "Flashcards", icon: "🗂️" },
-  { href: "/study-guides", label: "Guides", icon: "📖" },
   { href: "/calendar", label: "Calendar", icon: "📅" },
 ];
 
-const studyNavItems = [
+// Study dropdown items
+const studyItems = [
   { href: "/classes", label: "Classes", icon: "📚" },
   { href: "/assignments", label: "Assignments", icon: "📝" },
-  { href: "/study", label: "Study", icon: "🎯" },
+  { href: "/study", label: "Study Session", icon: "🎯" },
   { href: "/flashcards", label: "Flashcards", icon: "🃏" },
   { href: "/study-guides", label: "Study Guides", icon: "📖" },
 ];
 
-const trackingNavItems = [
+// Track dropdown items
+const trackItems = [
   { href: "/goals", label: "Goals", icon: "🎯" },
   { href: "/progress", label: "Progress", icon: "📈" },
   { href: "/reflections", label: "Reflections", icon: "💭" },
@@ -41,8 +44,8 @@ export default function Navigation() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [studyDropdownOpen, setStudyDropdownOpen] = useState(false);
-  const [trackingDropdownOpen, setTrackingDropdownOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -62,7 +65,17 @@ export default function Navigation() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Don't show nav on auth pages
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const isAuthPage = pathname === "/login" || pathname === "/signup";
 
   const handleSignOut = async () => {
@@ -76,19 +89,60 @@ export default function Navigation() {
     return pathname.startsWith(href);
   };
 
+  const isDropdownActive = (items) => {
+    return items.some(item => isActiveLink(item.href));
+  };
+
+  const toggleDropdown = (name) => {
+    setOpenDropdown(openDropdown === name ? null : name);
+  };
+
+  const renderDropdown = (name, label, icon, items) => (
+    <div className="nav-dropdown" ref={openDropdown === name ? dropdownRef : null}>
+      <button
+        className={`nav-link dropdown-trigger ${isDropdownActive(items) ? "active" : ""}`}
+        onClick={() => toggleDropdown(name)}
+      >
+        <span className="nav-icon">{icon}</span>
+        <span className="nav-label">{label}</span>
+        <svg className={`dropdown-chevron ${openDropdown === name ? "open" : ""}`} width="10" height="6" viewBox="0 0 10 6" fill="none">
+          <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+      {openDropdown === name && (
+        <div className="dropdown-menu">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`dropdown-item ${isActiveLink(item.href) ? "active" : ""}`}
+              onClick={() => {
+                setOpenDropdown(null);
+                setMobileMenuOpen(false);
+              }}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <nav className="main-nav">
       <div className="nav-container">
         {/* Logo */}
-        <Link href="/" className="nav-logo">
+        <Link href="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
           <span className="logo-icon">🌊</span>
           <span className="logo-text">StudyTide</span>
         </Link>
 
-        {/* Main Navigation Links */}
+        {/* Navigation Links */}
         <div className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
-          {/* Main items */}
-          {mainNavItems.map((item) => (
+          {/* Public items - always visible */}
+          {publicNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -100,110 +154,59 @@ export default function Navigation() {
             </Link>
           ))}
 
-          {/* Study Dropdown - only show when logged in */}
+          {/* Protected items - only when logged in */}
           {user && (
-            <div className="nav-dropdown">
-              <button
-                className={`nav-link dropdown-trigger ${studyNavItems.some(item => isActiveLink(item.href)) ? "active" : ""}`}
-                onClick={() => setStudyDropdownOpen(!studyDropdownOpen)}
-              >
-                <span className="nav-icon">📚</span>
-                <span className="nav-label">Study</span>
-                <span className="dropdown-arrow">{studyDropdownOpen ? "▲" : "▼"}</span>
-              </button>
-              {studyDropdownOpen && (
-                <div className="dropdown-menu">
-                  {studyNavItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`dropdown-item ${isActiveLink(item.href) ? "active" : ""}`}
-                      onClick={() => {
-                        setStudyDropdownOpen(false);
-                        setMobileMenuOpen(false);
-                      }}
-                    >
-                      <span className="nav-icon">{item.icon}</span>
-                      <span className="nav-label">{item.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+            <>
+              {protectedNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`nav-link ${isActiveLink(item.href) ? "active" : ""}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </Link>
+              ))}
 
-          {/* Tracking Dropdown - only show when logged in */}
-          {user && (
-            <div className="nav-dropdown">
-              <button
-                className={`nav-link dropdown-trigger ${trackingNavItems.some(item => isActiveLink(item.href)) ? "active" : ""}`}
-                onClick={() => setTrackingDropdownOpen(!trackingDropdownOpen)}
-              >
-                <span className="nav-icon">📈</span>
-                <span className="nav-label">Track</span>
-                <span className="dropdown-arrow">{trackingDropdownOpen ? "▲" : "▼"}</span>
-              </button>
-              {trackingDropdownOpen && (
-                <div className="dropdown-menu">
-                  {trackingNavItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`dropdown-item ${isActiveLink(item.href) ? "active" : ""}`}
-                      onClick={() => {
-                        setTrackingDropdownOpen(false);
-                        setMobileMenuOpen(false);
-                      }}
-                    >
-                      <span className="nav-icon">{item.icon}</span>
-                      <span className="nav-label">{item.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+              {/* Study Dropdown */}
+              {renderDropdown("study", "Study", "📚", studyItems)}
 
-          {/* Settings - only show when logged in */}
-          {user && (
-            <Link
-              href="/settings"
-              className={`nav-link ${isActiveLink("/settings") ? "active" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span className="nav-icon">⚙️</span>
-              <span className="nav-label">Settings</span>
-            </Link>
+              {/* Track Dropdown */}
+              {renderDropdown("track", "Track", "📈", trackItems)}
+
+              {/* Settings */}
+              <Link
+                href="/settings"
+                className={`nav-link ${isActiveLink("/settings") ? "active" : ""}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span className="nav-icon">⚙️</span>
+                <span className="nav-label">Settings</span>
+              </Link>
+            </>
           )}
         </div>
-
 
         {/* Auth Section */}
         <div className="nav-auth">
           {loading ? (
             <div className="nav-loading"></div>
           ) : user ? (
-            <div className="user-menu">
-              <span className="user-greeting">👋 {user.user_metadata?.full_name?.split(' ')[0] || 'Student'}</span>
-              <button onClick={handleSignOut} className="nav-link auth-link sign-out-btn">
-                <span className="nav-icon">🚪</span>
-                <span className="nav-label">Sign Out</span>
-              </button>
-            </div>
+            <button onClick={handleSignOut} className="sign-out-btn">
+              <span className="nav-icon">🚪</span>
+              <span className="nav-label">Sign Out</span>
+            </button>
           ) : (
             !isAuthPage && (
-              <>
-                {authItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`nav-link auth-link ${pathname === item.href ? "active" : ""}`}
-                  >
-                    <span className="nav-icon">{item.icon}</span>
-                    <span className="nav-label">{item.label}</span>
-                  </Link>
-                ))}
-              </>
+              <div className="auth-buttons">
+                <Link href="/login" className="auth-link login-btn">
+                  Login
+                </Link>
+                <Link href="/signup" className="auth-link signup-btn">
+                  Sign Up
+                </Link>
+              </div>
             )
           )}
         </div>
