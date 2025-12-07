@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>StudyTide — Learn Better</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand">StudyTide</div>
+      <button id="nav-toggle" class="nav-toggle" aria-expanded="false" aria-controls="main-nav">☰</button>
+      <nav id="main-nav" class="main-nav" role="navigation">
+        <ul>
+          <li><a href="#home" data-tab="home" class="active">Home</a></li>
+          <li><a href="#courses" data-tab="courses">Courses</a></li>
+          <li><a href="#tutors" data-tab="tutors">Tutors</a></li>
+          <li><a href="#calendar" data-tab="calendar">Calendar</a></li>
+          <li><a href="#resources" data-tab="resources">Resources</a></li>
+          <li><a href="#community" data-tab="community">Community</a></li>
+          <li><a href="#about" data-tab="about">About</a></li>
+          <li><a href="#contact" data-tab="contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="home" class="tab-content" data-tab-content>
+      <h1>Welcome to StudyTide</h1>
+      <p>Your learning wave — find courses, tutors, and community resources to help you succeed.</p>
+    </section>
+
+    <section id="courses" class="tab-content" data-tab-content hidden>
+      <h2>Courses</h2>
+      <p>Browse courses grouped by topic and level.</p>
+    </section>
+
+    <section id="tutors" class="tab-content" data-tab-content hidden>
+      <h2>Tutors</h2>
+      <p>Find qualified tutors for one-on-one sessions.</p>
+    </section>
+
+    <section id="calendar" class="tab-content" data-tab-content hidden>
+      <h2>Calendar</h2>
+      <p>Keep track of class schedules, deadlines, and events.</p>
+    </section>
+
+    <section id="resources" class="tab-content" data-tab-content hidden>
+      <h2>Resources</h2>
+      <p>Study guides, practice problems, and recommended readings.</p>
+    </section>
+
+    <section id="community" class="tab-content" data-tab-content hidden>
+      <h2>Community</h2>
+      <p>Forums, study groups, and peer projects.</p>
+    </section>
+
+    <section id="about" class="tab-content" data-tab-content hidden>
+      <h2>About StudyTide</h2>
+      <p>Mission, team, and the story behind StudyTide.</p>
+    </section>
+
+    <section id="contact" class="tab-content" data-tab-content hidden>
+      <h2>Contact</h2>
+      <p>Get in touch with support or provide feedback.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>© StudyTide</small>
+    </div>
+  </footer>
+
+  <script src="./js/script.js"></script>
+</body>
+</html>

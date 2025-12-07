@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="waveGrad" x1="0" x2="1">
+      <stop offset="0" stop-color="#cfeeff" />
+      <stop offset="1" stop-color="#79c2e8" />
+    </linearGradient>
+  </defs>
+  <path d="M0 120 C120 80 200 140 320 120 C440 100 520 140 640 120 C760 100 840 140 1000 120 L1000 200 L0 200 Z" fill="url(#waveGrad)" transform="scale(0.8,1)"/>
+</svg>
+

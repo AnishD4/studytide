@@ -1,0 +1,61 @@
+:root{
+  --sky-1:#c6f0ff;
+  --sky-2:#9fe6ff;
+  --horizon:#70c8ec;
+  --sea:#2ea3d6;
+  --sand:#f3d9b6;
+  --deep:#0369a1;
+  --coral:#ff6b6b;
+  --muted:#475569;
+  --card:#ffffff;
+  --max-width:1100px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 40%, var(--horizon) 55%, var(--sea) 65%, var(--sand) 85%);
+  color:#07213a;
+  -webkit-font-smoothing:antialiased;
+}
+.page-wrap{min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1}
+.container{max-width:var(--max-width);margin:0 auto;padding:1rem}
+.site-header{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0}
+.brand{display:flex;align-items:center;gap:0.6rem;font-weight:800;color:var(--deep);font-size:1.25rem}
+.brand .crab{width:36px;height:36px;display:inline-block;transform-origin:center;animation:float 4s ease-in-out infinite}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-6px) rotate(-4deg)}100%{transform:translateY(0)}}
+.main-nav ul{list-style:none;margin:0;padding:0;display:flex;gap:0.5rem}
+.main-nav button{background:transparent;border:0;padding:0.5rem 0.8rem;border-radius:8px;color:var(--deep);cursor:pointer;font-weight:600}
+.main-nav button:hover{background:rgba(3,105,161,0.06)}
+.main-nav button.active{background:linear-gradient(90deg, rgba(255,107,107,0.12), rgba(3,105,161,0.12));color:var(--coral);box-shadow:0 6px 16px rgba(2,6,23,0.04)}
+
+.hero{padding:1.6rem;border-radius:12px;display:flex;flex-direction:column;gap:0.5rem;background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));box-shadow:0 8px 30px rgba(2,6,23,0.04)}
+.hero .lead{color:var(--muted)}
+.card{background:var(--card);border-radius:10px;padding:1rem;box-shadow:0 8px 24px rgba(2,6,23,0.04)}
+.mt-1{margin-top:1rem}
+
+.tabs{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem}
+.tab-panel{padding:1rem;transition:opacity 220ms ease, transform 220ms ease;overflow:hidden}
+.tab-panel.closed{opacity:0;transform:translateY(6px);display:none}
+.tab-panel.open{opacity:1;transform:translateY(0);display:block}
+.tab-panel h2{margin:0 0 0.5rem}
+.tab-panel p{color:var(--muted)}
+
+.site-footer{margin-top:auto;padding:1rem 0;color:var(--muted)}
+
+/* sun */
+.sun{position:fixed;right:2rem;top:2rem;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #fff3b0 0%, #ffd36b 35%, #ffb84d 70%);box-shadow:0 12px 40px rgba(255,176,77,0.25);pointer-events:none;z-index:0;opacity:0.95}
+
+/* ocean wave accents */
+.wave-graphic{position:fixed;left:0;bottom:0;width:140%;height:auto;opacity:0.92;pointer-events:none;z-index:0;transform:translateX(-10%)}
+
+/* responsive */
+@media (max-width:900px){.main-nav ul{gap:0.25rem}}
+@media (max-width:720px){
+  .main-nav ul{flex-wrap:wrap;gap:0.25rem}
+  .brand span{font-size:1rem}
+}
+
+/* small utilities */
+.center{max-width:680px;margin-left:auto;margin-right:auto}
