@@ -12,6 +12,7 @@ export default function Navigator() {
     { href: '/assignments', label: 'Assignments' },
     { href: '/study', label: 'Test' },
     { href: '/flashcards', label: 'Flashcards' },
+    { href: '/study-guides', label: 'Guides' },
   ];
 
   return (

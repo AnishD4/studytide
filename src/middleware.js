@@ -1,62 +1,72 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 export async function middleware(request) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+  // Check if Supabase is configured
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
+  // If Supabase is not configured, allow all routes (no auth)
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.next()
+  }
+
+  // If Supabase IS configured, use it for auth
+  try {
+    const { createServerClient } = await import('@supabase/ssr')
+
+    let supabaseResponse = NextResponse.next({ request })
+
+    const supabase = createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
+          supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
         },
       },
+    })
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Protected routes that require login
+    const protectedRoutes = ['/classes', '/extracurriculars', '/progress', '/reflections', '/goals']
+    const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))
+
+    // Redirect to login if trying to access protected route without being logged in
+    if (!user && isProtectedRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
     }
-  )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    // Redirect logged-in users away from login/signup to dashboard
+    if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
 
-  // Protect dashboard, settings, classes, extracurriculars, and progress routes
-  if (!user && (
-    request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/settings') ||
-    request.nextUrl.pathname.startsWith('/classes') ||
-    request.nextUrl.pathname.startsWith('/extracurriculars') ||
-    request.nextUrl.pathname.startsWith('/progress') ||
-    request.nextUrl.pathname.startsWith('/reflections') ||
-    request.nextUrl.pathname.startsWith('/goals')
-  )) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    return supabaseResponse
+  } catch (error) {
+    // If there's any error with Supabase, just allow the request
+    console.error('Middleware error:', error)
+    return NextResponse.next()
   }
-
-  // Redirect logged-in users away from login/signup
-  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
-  }
-
-  return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/settings/:path*', '/classes/:path*', '/extracurriculars/:path*', '/progress/:path*', '/reflections/:path*', '/goals/:path*', '/login', '/signup'],
+  matcher: [
+    '/classes/:path*',
+    '/extracurriculars/:path*',
+    '/progress/:path*',
+    '/reflections/:path*',
+    '/goals/:path*',
+    '/login',
+    '/signup'
+  ],
 }
-

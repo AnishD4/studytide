@@ -3,15 +3,6 @@
 import { useState, useEffect } from 'react'
 import { inferEstimate, inferDifficulty } from '../../lib/estimate'
 
-// ============================================================================
-// HELPERS
-// ============================================================================
-
-/**
- * Format minutes into human-readable time string
- * @param {number} minutes
- * @returns {string} Formatted time (e.g., "1h 30m" or "45m")
- */
 function formatTime(minutes) {
   if (!minutes && minutes !== 0) return '—'
   const hours = Math.floor(minutes / 60)
@@ -19,28 +10,16 @@ function formatTime(minutes) {
   return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
 }
 
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
-
 export default function AssignmentsPage() {
-  // Form state
   const [title, setTitle] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [description, setDescription] = useState('')
-
-  // Data state
   const [assignments, setAssignments] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Live preview predictions (client-side)
   const combinedText = `${title} ${description}`
   const previewEstimate = inferEstimate(combinedText)
   const previewDifficulty = inferDifficulty(combinedText)
-
-  // --------------------------------------------------------------------------
-  // HANDLERS
-  // --------------------------------------------------------------------------
 
   async function handleAddAssignment(e) {
     e.preventDefault()
@@ -50,17 +29,10 @@ export default function AssignmentsPage() {
       const response = await fetch('/api/assignments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          dueDate: dueDate || null,
-          description
-        })
+        body: JSON.stringify({ title, dueDate: dueDate || null, description })
       })
-
       const created = await response.json()
       setAssignments(prev => [created, ...prev])
-
-      // Reset form
       setTitle('')
       setDueDate('')
       setDescription('')
@@ -79,7 +51,6 @@ export default function AssignmentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, completed: !assignment.completed ? 1 : 0 })
       })
-
       const updated = await response.json()
       setAssignments(prev => prev.map(a => a.id === id ? updated : a))
     } catch (error) {
@@ -94,10 +65,7 @@ export default function AssignmentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })
       })
-
-      if (response.ok) {
-        setAssignments(prev => prev.filter(a => a.id !== id))
-      }
+      if (response.ok) setAssignments(prev => prev.filter(a => a.id !== id))
     } catch (error) {
       console.error('Failed to remove assignment:', error)
     }
@@ -110,7 +78,6 @@ export default function AssignmentsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'prioritize' })
       })
-      // Refresh assignments to get new priorities
       const response = await fetch('/api/assignments')
       const data = await response.json()
       setAssignments(data)
@@ -118,10 +85,6 @@ export default function AssignmentsPage() {
       console.error('Failed to prioritize:', error)
     }
   }
-
-  // --------------------------------------------------------------------------
-  // EFFECTS
-  // --------------------------------------------------------------------------
 
   useEffect(() => {
     async function fetchAssignments() {
@@ -139,189 +102,115 @@ export default function AssignmentsPage() {
     fetchAssignments()
   }, [])
 
-  // --------------------------------------------------------------------------
-  // RENDER
-  // --------------------------------------------------------------------------
-
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="max-w-3xl mx-auto p-6">
-        {/* Header */}
-        <h1 className="text-2xl font-semibold mb-2">Assignments</h1>
-        <p className="text-sm text-zinc-400 mb-6">
-          Create assignments with due date, difficulty, estimated time and description.
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+      <main className="max-w-3xl mx-auto p-6 pt-8">
+        <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">📚 Assignments</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-8">Track assignments with AI-estimated time and difficulty</p>
 
-        {/* Add Assignment Form */}
-        <form onSubmit={handleAddAssignment} className="grid gap-4 mb-8">
-          {/* Title Input */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Title</label>
-            <input
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              required
-              placeholder="Enter assignment title"
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-white placeholder-zinc-500 focus:border-white focus:outline-none"
-            />
-          </div>
-
-          {/* Due Date & Preview Row */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">Due date</label>
+        <form onSubmit={handleAddAssignment} className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 mb-8 shadow-sm">
+          <div className="grid gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Title</label>
               <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-white focus:border-white focus:outline-none"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                required
+                placeholder="Enter assignment title"
+                className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
 
-            {/* Live Preview */}
-            <div className="w-44">
-              <label className="block text-sm font-medium mb-1">Preview</label>
-              <div className="flex items-center gap-3 rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black font-bold">
-                  {previewDifficulty}
-                </span>
-                <span className="text-sm text-zinc-300">
-                  {formatTime(previewEstimate)}
-                </span>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Due date</label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={e => setDueDate(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+              <div className="w-40">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Preview</label>
+                <div className="flex items-center gap-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold text-sm">{previewDifficulty}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{formatTime(previewEstimate)}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <textarea
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              rows={3}
-              placeholder="Describe the assignment..."
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-white placeholder-zinc-500 focus:border-white focus:outline-none resize-none"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Description</label>
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                rows={3}
+                placeholder="Describe the assignment..."
+                className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none resize-none"
+              />
+            </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="rounded-lg bg-white text-black px-6 py-3 font-semibold hover:bg-zinc-200 transition-colors"
-          >
-            Add Assignment
-          </button>
+            <button type="submit" className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+              Add Assignment
+            </button>
+          </div>
         </form>
 
-        {/* Assignments List */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium">
-              Assignments ({assignments.length})
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Assignments ({assignments.length})</h2>
             {assignments.length > 0 && (
-              <button
-                onClick={handleAutoPrioritize}
-                className="text-sm px-3 py-1 rounded-lg border border-zinc-700 hover:border-zinc-500"
-              >
+              <button onClick={handleAutoPrioritize} className="text-sm px-3 py-1.5 rounded-xl border border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
                 🎯 Auto-Prioritize
               </button>
             )}
           </div>
 
-          {loading && <p className="text-sm text-zinc-400">Loading…</p>}
-
-          {!loading && assignments.length === 0 && (
-            <p className="text-sm text-zinc-400">No assignments yet.</p>
-          )}
+          {loading && <p className="text-sm text-gray-500">Loading…</p>}
+          {!loading && assignments.length === 0 && <p className="text-sm text-gray-500">No assignments yet.</p>}
 
           <ul className="space-y-3">
-            {assignments
-              .sort((a, b) => (b.priority || 5) - (a.priority || 5))
-              .map(assignment => (
-              <AssignmentCard
-                key={assignment.id}
-                assignment={assignment}
-                onToggleComplete={handleToggleComplete}
-                onRemove={handleRemoveAssignment}
-              />
+            {assignments.sort((a, b) => (b.priority || 5) - (a.priority || 5)).map(assignment => (
+              <AssignmentCard key={assignment.id} assignment={assignment} onToggleComplete={handleToggleComplete} onRemove={handleRemoveAssignment} />
             ))}
           </ul>
         </section>
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }
 
-// ============================================================================
-// SUB-COMPONENTS
-// ============================================================================
-
-/**
- * Individual assignment card component
- */
 function AssignmentCard({ assignment, onToggleComplete, onRemove }) {
   const { id, title, dueDate, difficulty, estimatedMinutes, description, completed, priority } = assignment
   const displayDifficulty = difficulty ?? 5
   const displayPriority = priority ?? 5
-
-  // Priority color
   const priorityColor = displayPriority >= 8 ? 'bg-red-500' : displayPriority >= 5 ? 'bg-yellow-500' : 'bg-green-500'
 
   return (
-    <li className={`rounded-lg border border-zinc-700 bg-zinc-900 p-4 ${completed ? 'opacity-60' : ''}`}>
+    <li className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm ${completed ? 'opacity-60' : ''}`}>
       <div className="flex justify-between items-start gap-4">
-        {/* Priority indicator */}
         <div className={`w-1 self-stretch rounded-full ${priorityColor}`}></div>
-
-        {/* Assignment Info */}
         <div className="flex-1 min-w-0">
-          <h3 className={`font-medium ${completed ? 'line-through text-zinc-500' : 'text-white'}`}>
-            {title}
-          </h3>
-
-          {/* Stats Row */}
+          <h3 className={`font-medium ${completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>{title}</h3>
           <div className="flex items-center gap-3 mt-2 text-sm flex-wrap">
-            <span className="text-zinc-400">Due: {dueDate || '—'}</span>
+            <span className="text-gray-500">Due: {dueDate || '—'}</span>
             <span className="flex items-center gap-1">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white text-black text-xs font-bold">
-                {displayDifficulty}
-              </span>
-              <span className="text-zinc-500">diff</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold">{displayDifficulty}</span>
+              <span className="text-gray-400">diff</span>
             </span>
-            <span className="text-zinc-400">{formatTime(estimatedMinutes)}</span>
-            <span className={`px-2 py-0.5 rounded text-xs ${
-              displayPriority >= 8 ? 'bg-red-900/50 text-red-300' : 
-              displayPriority >= 5 ? 'bg-yellow-900/50 text-yellow-300' : 
-              'bg-green-900/50 text-green-300'
-            }`}>
+            <span className="text-gray-500">{formatTime(estimatedMinutes)}</span>
+            <span className={`px-2 py-0.5 rounded text-xs ${displayPriority >= 8 ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' : displayPriority >= 5 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400' : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'}`}>
               P{displayPriority}
             </span>
           </div>
-
-          {description && (
-            <p className={`mt-2 text-sm ${completed ? 'line-through text-zinc-600' : 'text-zinc-400'}`}>
-              {description}
-            </p>
-          )}
+          {description && <p className={`mt-2 text-sm ${completed ? 'line-through text-gray-400' : 'text-gray-500'}`}>{description}</p>}
         </div>
-
-        {/* Actions */}
         <div className="flex flex-col gap-2">
-          <button
-            onClick={() => onToggleComplete(id)}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              completed 
-                ? 'bg-green-600 text-white' 
-                : 'bg-zinc-800 text-white hover:bg-zinc-700'
-            }`}
-          >
+          <button onClick={() => onToggleComplete(id)} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${completed ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
             {completed ? '✓ Done' : 'Complete'}
           </button>
-          <button
-            onClick={() => onRemove(id)}
-            className="px-3 py-1.5 rounded-md text-sm text-red-400 hover:text-red-300 hover:bg-zinc-800 transition-colors"
-          >
+          <button onClick={() => onRemove(id)} className="px-3 py-1.5 rounded-lg text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
             Remove
           </button>
         </div>
