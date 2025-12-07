@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import db from '../../../lib/db'
+import { createClient } from '@/lib/supabase/server'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
@@ -204,24 +204,48 @@ Return JSON:
 
 export async function POST(request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { action, topic, material, count, availableMinutes } = await request.json()
 
     if (action === 'prioritize') {
-      const assignments = db.prepare('SELECT * FROM assignments WHERE completed = 0').all()
-      const priorities = await calculatePriorities(assignments)
+      // Note: Assignments table doesn't exist in your schema yet
+      // You'll need to create it or this will return empty
+      const { data: assignments } = await supabase
+        .from('assignments')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('completed', false)
+
+      const priorities = await calculatePriorities(assignments || [])
 
       // Update priorities in database
-      const updateStmt = db.prepare('UPDATE assignments SET priority = ? WHERE id = ?')
-      assignments.forEach((a, i) => {
-        updateStmt.run(priorities[i] || 5, a.id)
-      })
+      if (assignments && assignments.length > 0) {
+        for (let i = 0; i < assignments.length; i++) {
+          await supabase
+            .from('assignments')
+            .update({ priority: priorities[i] || 5 })
+            .eq('id', assignments[i].id)
+        }
+      }
 
       return NextResponse.json({ success: true, priorities })
     }
 
     if (action === 'daily-plan') {
-      const assignments = db.prepare('SELECT * FROM assignments WHERE completed = 0 ORDER BY priority DESC').all()
-      const plan = await generateStudyPlan(assignments, availableMinutes || 180)
+      const { data: assignments } = await supabase
+        .from('assignments')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('completed', false)
+        .order('priority', { ascending: false })
+
+      const plan = await generateStudyPlan(assignments || [], availableMinutes || 180)
       return NextResponse.json(plan)
     }
 
@@ -229,8 +253,10 @@ export async function POST(request) {
       if (!topic) return NextResponse.json({ error: 'Topic required' }, { status: 400 })
       const guide = await generateStudyGuide(topic, material)
 
-      // Save to database
-      db.prepare('INSERT INTO study_guides (topic, content) VALUES (?, ?)').run(topic, guide)
+      // Save to database - you'll need to create this table
+      await supabase
+        .from('study_guides')
+        .insert({ user_id: user.id, topic, content: guide })
 
       return NextResponse.json({ guide })
     }
@@ -239,18 +265,28 @@ export async function POST(request) {
       if (!topic) return NextResponse.json({ error: 'Topic required' }, { status: 400 })
       const flashcards = await generateFlashcards(topic, count || 10, material)
 
-      // Save to database
-      const insertStmt = db.prepare('INSERT INTO flashcards (topic, front, back) VALUES (?, ?, ?)')
-      flashcards.forEach(card => {
-        insertStmt.run(topic, card.front, card.back)
-      })
+      // Save to database - you'll need to create this table
+      const cardsToInsert = flashcards.map(card => ({
+        user_id: user.id,
+        topic,
+        front: card.front,
+        back: card.back
+      }))
+
+      await supabase.from('flashcards').insert(cardsToInsert)
 
       return NextResponse.json({ flashcards })
     }
 
     if (action === 'what-to-study') {
-      const assignments = db.prepare('SELECT * FROM assignments WHERE completed = 0 ORDER BY priority DESC').all()
-      const recommendation = await getStudyRecommendation(assignments)
+      const { data: assignments } = await supabase
+        .from('assignments')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('completed', false)
+        .order('priority', { ascending: false })
+
+      const recommendation = await getStudyRecommendation(assignments || [])
       return NextResponse.json(recommendation)
     }
 
@@ -262,22 +298,49 @@ export async function POST(request) {
 }
 
 export async function GET(request) {
-  const { searchParams } = new URL(request.url)
-  const type = searchParams.get('type')
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (type === 'flashcards') {
-    const topic = searchParams.get('topic')
-    const cards = topic
-      ? db.prepare('SELECT * FROM flashcards WHERE topic = ? ORDER BY id DESC').all(topic)
-      : db.prepare('SELECT * FROM flashcards ORDER BY id DESC LIMIT 100').all()
-    return NextResponse.json(cards)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get('type')
+
+    if (type === 'flashcards') {
+      const topic = searchParams.get('topic')
+      let query = supabase
+        .from('flashcards')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('id', { ascending: false })
+
+      if (topic) {
+        query = query.eq('topic', topic)
+      } else {
+        query = query.limit(100)
+      }
+
+      const { data: cards } = await query
+      return NextResponse.json(cards || [])
+    }
+
+    if (type === 'study-guides') {
+      const { data: guides } = await supabase
+        .from('study_guides')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('id', { ascending: false })
+
+      return NextResponse.json(guides || [])
+    }
+
+    return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
+  } catch (error) {
+    console.error('Study tools GET error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
-
-  if (type === 'study-guides') {
-    const guides = db.prepare('SELECT * FROM study_guides ORDER BY id DESC').all()
-    return NextResponse.json(guides)
-  }
-
-  return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
 }
 
