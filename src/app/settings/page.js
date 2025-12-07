@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const DAYS_OF_WEEK = [
   { id: 'monday', label: 'Mon' },
@@ -173,27 +174,40 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-60px)] flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     )
   }
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-[calc(100vh-60px)]">
-      <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">⚙️ Settings</h1>
-          <button
-            onClick={saveSettings}
-            disabled={saving}
-            className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            </div>
+            <div className="flex items-center">
+              <button
+                onClick={saveSettings}
+                disabled={saving}
+                className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
         </div>
+      </nav>
 
+      <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {message && (
           <div className={`mb-6 p-4 rounded-lg ${
             message.type === 'success' 

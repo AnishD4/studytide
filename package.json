@@ -14,7 +14,7 @@
     "@fullcalendar/react": "^6.1.19",
     "@fullcalendar/timegrid": "^6.1.19",
     "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.86.2",
+    "better-sqlite3": "^12.5.0",
     "date-fns": "^4.1.0",
     "next": "16.0.7",
     "react": "19.2.0",

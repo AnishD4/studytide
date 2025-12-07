@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -53,31 +51,13 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentView, setCurrentView] = useState("dayGridMonth");
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const calendarRef = useRef(null);
-  const router = useRouter();
-  const supabase = createClient();
 
   const [newEvent, setNewEvent] = useState({
     title: "",
     type: "assignment",
     reminderDays: 1,
   });
-
-  // Check authentication on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-      setUser(user);
-      setLoading(false);
-    };
-    checkAuth();
-  }, [router, supabase.auth]);
 
   // Generate reminders based on upcoming events
   const generateReminders = useCallback(() => {
@@ -211,15 +191,6 @@ export default function CalendarPage() {
       setCurrentView(view);
     }
   };
-
-  // Show loading state while checking auth
-  if (loading) {
-    return (
-      <div className="calendar-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="calendar-container">

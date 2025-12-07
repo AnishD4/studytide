@@ -1,181 +1,229 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
+'use client'
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
+import { useState, useEffect } from 'react'
 
-  const { data: { user } } = await supabase.auth.getUser()
+export default function DashboardPage() {
+  const [recommendation, setRecommendation] = useState(null)
+  const [dailyPlan, setDailyPlan] = useState(null)
+  const [availableTime, setAvailableTime] = useState(180)
+  const [loading, setLoading] = useState({ recommendation: true, plan: false })
 
-  if (!user) {
-    redirect('/login')
+  // Fetch "What should I study?" on load
+  useEffect(() => {
+    fetchRecommendation()
+  }, [])
+
+  async function fetchRecommendation() {
+    setLoading(prev => ({ ...prev, recommendation: true }))
+    try {
+      const res = await fetch('/api/study-tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'what-to-study' })
+      })
+      const data = await res.json()
+      setRecommendation(data)
+    } catch (err) {
+      console.error('Error:', err)
+    } finally {
+      setLoading(prev => ({ ...prev, recommendation: false }))
+    }
   }
 
-  const handleSignOut = async () => {
-    'use server'
-    const supabase = await createClient()
-    await supabase.auth.signOut()
-    redirect('/login')
+  async function fetchDailyPlan() {
+    setLoading(prev => ({ ...prev, plan: true }))
+    try {
+      const res = await fetch('/api/study-tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'daily-plan', availableMinutes: availableTime })
+      })
+      const data = await res.json()
+      setDailyPlan(data)
+    } catch (err) {
+      console.error('Error:', err)
+    } finally {
+      setLoading(prev => ({ ...prev, plan: false }))
+    }
+  }
+
+  async function handlePrioritize() {
+    try {
+      await fetch('/api/study-tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'prioritize' })
+      })
+      fetchRecommendation()
+    } catch (err) {
+      console.error('Error:', err)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Navigation */}
-      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                StudyTide
-              </h1>
+    <div className="min-h-screen bg-black text-white">
+      <main className="max-w-4xl mx-auto p-6">
+        <h1 className="text-2xl font-semibold mb-2">Dashboard</h1>
+        <p className="text-sm text-zinc-400 mb-8">Your personalized study hub</p>
+
+        {/* What Should I Study? */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium">📚 What Should I Study?</h2>
+            <button
+              onClick={fetchRecommendation}
+              className="text-sm text-zinc-400 hover:text-white"
+            >
+              Refresh
+            </button>
+          </div>
+
+          {loading.recommendation ? (
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+              <p className="mt-2 text-zinc-400">Analyzing your assignments...</p>
             </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/settings"
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                title="Settings"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </Link>
-              <div className="flex items-center gap-3">
-                {user.user_metadata?.avatar_url && (
-                  <img
-                    src={user.user_metadata.avatar_url}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full"
-                  />
-                )}
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  {user.user_metadata?.full_name || user.email}
-                </span>
-              </div>
-              <form action={handleSignOut}>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+          ) : recommendation ? (
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+              <p className="text-lg mb-4">{recommendation.recommendation}</p>
+
+              {recommendation.topPick && (
+                <div className="bg-zinc-800 rounded-lg p-4 mb-4">
+                  <div className="text-sm text-zinc-400 mb-1">Start with:</div>
+                  <div className="text-xl font-semibold text-green-400">{recommendation.topPick}</div>
+                  {recommendation.reason && (
+                    <div className="text-sm text-zinc-400 mt-1">{recommendation.reason}</div>
+                  )}
+                </div>
+              )}
+
+              {recommendation.urgent && recommendation.urgent.length > 0 && (
+                <div className="mb-4">
+                  <div className="text-sm text-red-400 mb-2">⚠️ Urgent:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {recommendation.urgent.map((task, i) => (
+                      <span key={i} className="px-3 py-1 bg-red-900/30 border border-red-800 rounded-full text-sm">
+                        {task}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {recommendation.motivation && (
+                <p className="text-sm text-zinc-400 italic">💪 {recommendation.motivation}</p>
+              )}
+            </div>
+          ) : null}
+        </section>
+
+        {/* Auto-Prioritize */}
+        <section className="mb-8">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+            <h2 className="text-lg font-medium mb-2">🎯 AI Priority Sorting</h2>
+            <p className="text-sm text-zinc-400 mb-4">
+              Let AI analyze your assignments and sort them by urgency based on due dates, difficulty, and time needed.
+            </p>
+            <button
+              onClick={handlePrioritize}
+              className="px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-zinc-200"
+            >
+              Auto-Prioritize My Assignments
+            </button>
+          </div>
+        </section>
+
+        {/* Daily Study Plan */}
+        <section className="mb-8">
+          <h2 className="text-lg font-medium mb-4">📅 Daily Study Plan</h2>
+
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+            <div className="flex items-end gap-4 mb-6">
+              <div className="flex-1">
+                <label className="block text-sm text-zinc-400 mb-1">Available study time</label>
+                <select
+                  value={availableTime}
+                  onChange={e => setAvailableTime(Number(e.target.value))}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white"
                 >
-                  Sign Out
-                </button>
-              </form>
+                  <option value={60}>1 hour</option>
+                  <option value={120}>2 hours</option>
+                  <option value={180}>3 hours</option>
+                  <option value={240}>4 hours</option>
+                  <option value={300}>5 hours</option>
+                  <option value={480}>8 hours</option>
+                </select>
+              </div>
+              <button
+                onClick={fetchDailyPlan}
+                disabled={loading.plan}
+                className="px-6 py-2 bg-white text-black rounded-lg font-medium hover:bg-zinc-200 disabled:opacity-50"
+              >
+                {loading.plan ? 'Generating...' : 'Generate Plan'}
+              </button>
             </div>
+
+            {dailyPlan && (
+              <div className="space-y-4">
+                {dailyPlan.greeting && (
+                  <p className="text-lg">{dailyPlan.greeting}</p>
+                )}
+
+                {dailyPlan.focus && (
+                  <div className="bg-zinc-800 rounded-lg p-3">
+                    <span className="text-zinc-400">Today's focus: </span>
+                    <span className="font-medium">{dailyPlan.focus}</span>
+                  </div>
+                )}
+
+                {dailyPlan.tasks && dailyPlan.tasks.length > 0 && (
+                  <div className="space-y-3">
+                    {dailyPlan.tasks.map((task, i) => (
+                      <div key={i} className="flex items-center gap-4 p-4 bg-zinc-800/50 rounded-lg">
+                        <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center font-bold">
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium">{task.title}</div>
+                          <div className="text-sm text-zinc-400">{task.reason}</div>
+                        </div>
+                        <div className="text-sm text-zinc-400">
+                          {task.duration} min
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {dailyPlan.tip && (
+                  <div className="bg-yellow-900/20 border border-yellow-800/50 rounded-lg p-4 text-sm">
+                    💡 <span className="text-yellow-200">{dailyPlan.tip}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </div>
-      </nav>
+        </section>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Welcome back, {user.user_metadata?.full_name?.split(' ')[0] || 'Student'}! 👋
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Here's your study overview for today.
-          </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Classes</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
-              </div>
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tasks Due Today</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Upcoming Tests</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">GPA</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">—</p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center justify-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-              <svg className="w-8 h-8 text-indigo-600 dark:text-indigo-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Add Class</span>
-            </button>
-            <button className="flex flex-col items-center justify-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-              <svg className="w-8 h-8 text-indigo-600 dark:text-indigo-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">New Task</span>
-            </button>
-            <button className="flex flex-col items-center justify-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-              <svg className="w-8 h-8 text-indigo-600 dark:text-indigo-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Calendar</span>
-            </button>
-            <button className="flex flex-col items-center justify-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-              <svg className="w-8 h-8 text-indigo-600 dark:text-indigo-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Study Plan</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Getting Started */}
-        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-sm p-6 text-white">
-          <h3 className="text-lg font-semibold mb-2">🚀 Get Started with StudyTide</h3>
-          <p className="text-indigo-100 mb-4">
-            Add your first class to start organizing your assignments, tracking grades, and getting AI-powered study recommendations.
-          </p>
-          <button className="px-4 py-2 bg-white text-indigo-600 font-medium rounded-lg hover:bg-indigo-50 transition-colors">
-            Create Your First Class
-          </button>
-        </div>
+        {/* Quick Links */}
+        <section className="grid grid-cols-2 gap-4">
+          <a
+            href="/flashcards"
+            className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 hover:border-zinc-600 transition-colors"
+          >
+            <div className="text-2xl mb-2">🗂️</div>
+            <div className="font-medium">Flashcards</div>
+            <div className="text-sm text-zinc-400">Create & review flashcards</div>
+          </a>
+          <a
+            href="/study-guides"
+            className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 hover:border-zinc-600 transition-colors"
+          >
+            <div className="text-2xl mb-2">📖</div>
+            <div className="font-medium">Study Guides</div>
+            <div className="text-sm text-zinc-400">Generate study guides</div>
+          </a>
+        </section>
       </main>
     </div>
   )
