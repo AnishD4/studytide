@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import VantaWavesBackground from '@/components/VantaWavesBackground'
 
 export default function DashboardPage() {
   const [recommendation, setRecommendation] = useState(null)
@@ -67,16 +68,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+    <VantaWavesBackground className="min-h-screen" darkOverlay={true}>
       <main className="max-w-4xl mx-auto p-6 pt-8">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">📊 Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">Your personalized study hub</p>
+        <h1 className="text-3xl font-bold mb-2 text-white drop-shadow-lg">📊 Dashboard</h1>
+        <p className="text-gray-100 mb-8 drop-shadow-md">Your personalized study hub</p>
 
         {/* What Should I Study? */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">📚 What Should I Study?</h2>
-            <button onClick={fetchRecommendation} className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">Refresh</button>
+            <h2 className="text-xl font-semibold text-white drop-shadow-lg">📚 What Should I Study?</h2>
+            <button onClick={fetchRecommendation} className="text-sm text-cyan-300 hover:text-cyan-200 font-semibold">Refresh</button>
           </div>
 
           {loading.recommendation ? (
@@ -129,7 +130,7 @@ export default function DashboardPage() {
 
         {/* Daily Study Plan */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">📅 Daily Study Plan</h2>
+          <h2 className="text-xl font-semibold mb-4 text-white drop-shadow-lg">📅 Daily Study Plan</h2>
 
           <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
             <div className="flex items-end gap-4 mb-6">
@@ -199,6 +200,6 @@ export default function DashboardPage() {
           </a>
         </section>
       </main>
-    </div>
+    </VantaWavesBackground>
   )
 }

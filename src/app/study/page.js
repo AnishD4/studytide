@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import VantaWavesBackground from '@/components/VantaWavesBackground'
 
 export default function StudyPage() {
   const [topic, setTopic] = useState('')
@@ -145,11 +146,11 @@ export default function StudyPage() {
   const canGenerate = topic.trim() || studyMaterial
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 flex">
+    <VantaWavesBackground className="min-h-screen flex" darkOverlay={true}>
       <main className={`flex-1 p-6 pt-8 transition-all ${showReview && submitted ? 'mr-80' : ''}`}>
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">🧠 Practice Test</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">Enter a topic or upload study materials to generate a test</p>
+          <h1 className="text-3xl font-bold mb-2 text-white drop-shadow-lg">🧠 Practice Test</h1>
+          <p className="text-gray-100 mb-8 drop-shadow-md">Enter a topic or upload study materials to generate a test</p>
 
           {!testData && (
             <div className="space-y-4">
@@ -331,6 +332,6 @@ export default function StudyPage() {
           </div>
         </aside>
       )}
-    </div>
+    </VantaWavesBackground>
   )
 }

@@ -29,11 +29,11 @@ export default function VantaWavesBackground({ children, className = '', darkOve
             scale: 1.00,
             scaleMobile: 1.00,
             // Darker ocean theme colors for better contrast
-            color: 0x0c4a6e, // Darker cyan/ocean blue
-            shininess: 25.00,
-            waveHeight: 20.00,
-            waveSpeed: 0.65,
-            zoom: 0.65,
+            color: 0x1e3a5f, // Darker ocean blue
+            shininess: 30,
+            waveHeight: 15,
+            waveSpeed: 1,
+            zoom: 1,
           })
           setVantaEffect(effect)
         } catch (error) {

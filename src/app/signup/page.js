@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import VantaWavesBackground from '@/components/VantaWavesBackground'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -98,30 +99,30 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 flex items-center justify-center p-4">
+      <VantaWavesBackground className="min-h-screen flex items-center justify-center p-4" darkOverlay={true}>
         <div className="w-full max-w-md text-center">
           <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Check your email</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            We've sent a confirmation link to <strong>{email}</strong>
+          <h1 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">Check your email</h1>
+          <p className="text-gray-100 mb-6 drop-shadow-md">
+            We've sent a confirmation link to <strong className="text-white">{email}</strong>
           </p>
-          <Link href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+          <Link href="/login" className="text-cyan-300 hover:text-cyan-200 hover:underline font-semibold">
             Back to login
           </Link>
         </div>
-      </div>
+      </VantaWavesBackground>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 flex items-center justify-center p-4">
+    <VantaWavesBackground className="min-h-screen flex items-center justify-center p-4" darkOverlay={true}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-white drop-shadow-lg">
             <span>🌊</span> StudyTide
           </Link>
-          <h1 className="text-2xl font-bold mt-6 text-gray-900 dark:text-white">Create an account</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Start organizing your studies</p>
+          <h1 className="text-2xl font-bold mt-6 text-white drop-shadow-lg">Create an account</h1>
+          <p className="text-gray-100 mt-2 drop-shadow-md">Start organizing your studies</p>
         </div>
 
         {!supabaseConfigured && (
@@ -225,19 +226,19 @@ export default function SignupPage() {
           </div>
         </form>
 
-        <p className="text-center mt-6 text-gray-600 dark:text-gray-400">
+        <p className="text-center mt-6 text-gray-100">
           Already have an account?{' '}
-          <Link href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+          <Link href="/login" className="text-cyan-300 hover:text-cyan-200 hover:underline font-semibold">
             Sign in
           </Link>
         </p>
 
         <p className="text-center mt-4">
-          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <Link href="/dashboard" className="text-sm text-gray-200 hover:text-white">
             Continue without account →
           </Link>
         </p>
       </div>
-    </div>
+    </VantaWavesBackground>
   )
 }

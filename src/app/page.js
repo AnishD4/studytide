@@ -1,38 +1,27 @@
 import Link from "next/link";
+import VantaWavesBackground from "@/components/VantaWavesBackground";
 
 export default function Home() {
   return (
-    <div className="bg-gradient-to-br from-sky-50 via-cyan-50 to-teal-50 dark:from-slate-900 dark:via-cyan-950 dark:to-slate-900 relative overflow-hidden">
-      {/* Animated Ocean Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-cyan-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-40 right-20 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-200/20 rounded-full blur-3xl"></div>
-
-        {/* Floating bubbles */}
-        <div className="absolute bottom-0 left-[10%] w-4 h-4 bg-white/40 rounded-full animate-bounce" style={{ animationDuration: '3s' }}></div>
-        <div className="absolute bottom-0 left-[30%] w-6 h-6 bg-white/30 rounded-full animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }}></div>
-        <div className="absolute bottom-0 left-[60%] w-3 h-3 bg-white/50 rounded-full animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1s' }}></div>
-        <div className="absolute bottom-0 left-[80%] w-5 h-5 bg-white/40 rounded-full animate-bounce" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}></div>
-      </div>
-
-      {/* Hero Section */}
-      <section className="pt-12 pb-8 px-4 sm:px-6 lg:px-8 relative z-10">
+    <div className="relative overflow-hidden">
+      {/* Hero Section with Vanta Waves Background */}
+      <VantaWavesBackground className="min-h-screen" darkOverlay={true}>
+        <section className="pt-12 pb-8 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-100/80 dark:bg-cyan-900/50 backdrop-blur-sm rounded-full text-cyan-700 dark:text-cyan-300 text-sm font-medium mb-8 border border-cyan-200 dark:border-cyan-700">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/90 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-8 border border-cyan-400">
             <span className="text-lg">🌊</span>
             Ride the Wave of Academic Success
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
             Navigate Your
             <br />
-            <span className="bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-300 via-teal-300 to-emerald-300 bg-clip-text text-transparent">
               Academic Journey
             </span>
           </h1>
 
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
+          <p className="text-xl text-gray-100 max-w-2xl mx-auto mb-10 drop-shadow-md">
             Set sail with the AI-powered study companion that helps you chart your course,
             weather any storm, and reach your academic destinations.
           </p>
@@ -45,7 +34,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
-            <a href="#features" className="px-8 py-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-white dark:hover:bg-slate-700 transition-all border border-cyan-200 dark:border-cyan-700 flex items-center justify-center gap-2">
+            <a href="#features" className="px-8 py-4 bg-white/95 backdrop-blur-sm text-gray-900 font-semibold rounded-xl hover:bg-white transition-all border border-gray-200 flex items-center justify-center gap-2 shadow-lg">
               <span>🧭</span>
               Explore Features
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +44,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      </VantaWavesBackground>
 
       {/* Features Section - Ocean themed */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-800">
