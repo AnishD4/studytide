@@ -31,8 +31,16 @@ export async function middleware(request) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard and settings routes
-  if (!user && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/settings'))) {
+  // Protect dashboard, settings, classes, extracurriculars, and progress routes
+  if (!user && (
+    request.nextUrl.pathname.startsWith('/dashboard') ||
+    request.nextUrl.pathname.startsWith('/settings') ||
+    request.nextUrl.pathname.startsWith('/classes') ||
+    request.nextUrl.pathname.startsWith('/extracurriculars') ||
+    request.nextUrl.pathname.startsWith('/progress') ||
+    request.nextUrl.pathname.startsWith('/reflections') ||
+    request.nextUrl.pathname.startsWith('/goals')
+  )) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
@@ -49,6 +57,6 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/settings/:path*', '/classes/:path*', '/login', '/signup'],
+  matcher: ['/dashboard/:path*', '/settings/:path*', '/classes/:path*', '/extracurriculars/:path*', '/progress/:path*', '/reflections/:path*', '/goals/:path*', '/login', '/signup'],
 }
 
