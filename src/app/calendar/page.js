@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import VantaWavesBackground from '@/components/VantaWavesBackground'
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -137,20 +138,20 @@ export default function CalendarPage() {
   // Show loading state while checking authentication
   if (authLoading) {
     return (
-      <div className="min-h-[calc(100vh-60px)] flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+      <VantaWavesBackground className="min-h-[calc(100vh-60px)] flex items-center justify-center" darkOverlay={true}>
         <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-3 border-indigo-200 border-t-indigo-600 rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading calendar...</p>
+          <div className="animate-spin w-12 h-12 border-3 border-cyan-200 border-t-cyan-400 rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-100">Loading calendar...</p>
         </div>
-      </div>
+      </VantaWavesBackground>
     )
   }
 
   return (
-    <div className="min-h-[calc(100vh-60px)] bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+    <VantaWavesBackground className="min-h-[calc(100vh-60px)]" darkOverlay={true}>
       <main className="max-w-4xl mx-auto p-6 pt-8">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">📅 Calendar</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">View and manage your schedule</p>
+        <h1 className="text-3xl font-bold mb-2 text-white drop-shadow-lg">📅 Calendar</h1>
+        <p className="text-gray-100 mb-8 drop-shadow-md">View and manage your schedule</p>
 
         {/* Calendar Header */}
         <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
@@ -300,7 +301,7 @@ export default function CalendarPage() {
           </div>
         </div>
       )}
-    </div>
+    </VantaWavesBackground>
   )
 }
 
