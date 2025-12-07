@@ -23,4 +23,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Prevent layout shift from scrollbar appearing/disappearing */
+  overflow-y: scroll;
+}
+
+/* Ensure html takes full width accounting for scrollbar */
+html {
+  overflow-x: hidden;
 }
