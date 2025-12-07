@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import VantaWavesBackground from '@/components/VantaWavesBackground'
 
 export default function FlashcardsPage() {
   const [topic, setTopic] = useState('')
@@ -94,7 +95,7 @@ export default function FlashcardsPage() {
     const progress = ((currentIndex + 1) / flashcards.length) * 100
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+      <VantaWavesBackground className="min-h-screen" darkOverlay={true}>
         <main className="flex-1 flex flex-col items-center justify-center p-6 pt-20">
           <div className="w-full max-w-md mb-8">
             <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -132,11 +133,11 @@ export default function FlashcardsPage() {
             </div>
           )}
 
-          <button onClick={() => setStudyMode(false)} className="mt-8 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
+          <button onClick={() => setStudyMode(false)} className="mt-8 text-sm text-gray-100 hover:text-white">
             Exit Study Mode
           </button>
         </main>
-      </div>
+      </VantaWavesBackground>
     )
   }
 
@@ -146,12 +147,12 @@ export default function FlashcardsPage() {
     const percentage = Math.round((score.correct / total) * 100)
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 flex items-center justify-center p-6">
+      <VantaWavesBackground className="min-h-screen flex items-center justify-center p-6" darkOverlay={true}>
         <div className="text-center">
           <div className="text-6xl mb-4">{percentage >= 70 ? '🎉' : '📚'}</div>
-          <h2 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">Study Session Complete!</h2>
-          <div className="text-4xl font-bold mb-4 text-indigo-600 dark:text-indigo-400">{percentage}%</div>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">You got {score.correct} out of {total} cards correct</p>
+          <h2 className="text-2xl font-semibold mb-2 text-white drop-shadow-lg">Study Session Complete!</h2>
+          <div className="text-4xl font-bold mb-4 text-cyan-300">{percentage}%</div>
+          <p className="text-gray-100 mb-8 drop-shadow-md">You got {score.correct} out of {total} cards correct</p>
           <div className="flex gap-4 justify-center">
             <button onClick={() => { setScore({ correct: 0, incorrect: 0 }); startStudyMode() }} className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700">
               Study Again

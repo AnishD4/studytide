@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import VantaWavesBackground from '@/components/VantaWavesBackground'
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
@@ -61,10 +62,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+    <VantaWavesBackground className="min-h-screen" darkOverlay={true}>
       <main className="max-w-4xl mx-auto p-6 pt-8">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">⚙️ Settings</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">Customize your StudyTide experience</p>
+        <h1 className="text-3xl font-bold mb-2 text-white drop-shadow-lg">⚙️ Settings</h1>
+        <p className="text-gray-100 mb-8 drop-shadow-md">Customize your StudyTide experience</p>
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
@@ -397,6 +398,6 @@ export default function SettingsPage() {
           </button>
         </div>
       </main>
-    </div>
+    </VantaWavesBackground>
   )
 }
