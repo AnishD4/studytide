@@ -9,17 +9,13 @@ import "./Navigation.css";
 const mainNavItems = [
   { href: "/", label: "Home", icon: "🏠" },
   { href: "/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/assignments", label: "Assignments", icon: "📚" },
-  { href: "/study", label: "Test", icon: "🧠" },
-  { href: "/flashcards", label: "Flashcards", icon: "🗂️" },
-  { href: "/study-guides", label: "Guides", icon: "📖" },
   { href: "/calendar", label: "Calendar", icon: "📅" },
+  { href: "/classes", label: "Classes", icon: "📚" },
 ];
 
 const studyNavItems = [
-  { href: "/classes", label: "Classes", icon: "📚" },
   { href: "/assignments", label: "Assignments", icon: "📝" },
-  { href: "/study", label: "Study", icon: "🎯" },
+  { href: "/study", label: "Study Tools", icon: "🎯" },
   { href: "/flashcards", label: "Flashcards", icon: "🃏" },
   { href: "/study-guides", label: "Study Guides", icon: "📖" },
 ];

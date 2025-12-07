@@ -42,6 +42,7 @@ export default function AssignmentsPage() {
   }
 
   async function handleToggleComplete(id) {
+    if (!Array.isArray(assignments)) return
     const assignment = assignments.find(a => a.id === id)
     if (!assignment) return
 
@@ -80,7 +81,9 @@ export default function AssignmentsPage() {
       })
       const response = await fetch('/api/assignments')
       const data = await response.json()
-      setAssignments(data)
+      if (Array.isArray(data)) {
+        setAssignments(data)
+      }
     } catch (error) {
       console.error('Failed to prioritize:', error)
     }
@@ -92,9 +95,16 @@ export default function AssignmentsPage() {
       try {
         const response = await fetch('/api/assignments')
         const data = await response.json()
-        setAssignments(data)
+        // Ensure data is an array before setting state
+        if (Array.isArray(data)) {
+          setAssignments(data)
+        } else {
+          console.error('API returned non-array:', data)
+          setAssignments([])
+        }
       } catch (error) {
         console.error('Failed to fetch assignments:', error)
+        setAssignments([])
       } finally {
         setLoading(false)
       }
@@ -171,9 +181,12 @@ export default function AssignmentsPage() {
           {!loading && assignments.length === 0 && <p className="text-sm text-gray-500">No assignments yet.</p>}
 
           <ul className="space-y-3">
-            {assignments.sort((a, b) => (b.priority || 5) - (a.priority || 5)).map(assignment => (
-              <AssignmentCard key={assignment.id} assignment={assignment} onToggleComplete={handleToggleComplete} onRemove={handleRemoveAssignment} />
-            ))}
+            {Array.isArray(assignments) && [...assignments]
+              .sort((a, b) => (b.priority || 5) - (a.priority || 5))
+              .map(assignment => (
+                <AssignmentCard key={assignment.id} assignment={assignment} onToggleComplete={handleToggleComplete} onRemove={handleRemoveAssignment} />
+              ))
+            }
           </ul>
         </section>
       </main>
