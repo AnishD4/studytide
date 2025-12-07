@@ -1,147 +1,8 @@
 'use client'
 
-<<<<<<< Updated upstream
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import { format, differenceInDays, addDays } from "date-fns";
-import WorkloadBalanceWidget from "@/components/WorkloadBalanceWidget";
-import "./calendar.css";
-
-// Sample initial events - in a real app, these would come from a database
-const initialEvents = [
-  {
-    id: "1",
-    title: "Math Test",
-    start: addDays(new Date(), 3).toISOString().split("T")[0],
-    type: "test",
-    reminderDays: 2,
-    className: "event-test",
-  },
-  {
-    id: "2",
-    title: "Physics Assignment",
-    start: addDays(new Date(), 1).toISOString().split("T")[0],
-    type: "assignment",
-    className: "event-assignment",
-  },
-  {
-    id: "3",
-    title: "History Essay Due",
-    start: addDays(new Date(), 5).toISOString().split("T")[0],
-    type: "assignment",
-    className: "event-assignment",
-  },
-  {
-    id: "4",
-    title: "Chemistry Quiz",
-    start: addDays(new Date(), 7).toISOString().split("T")[0],
-    type: "test",
-    reminderDays: 3,
-    className: "event-test",
-  },
-];
-
-export default function CalendarPage() {
-  const [events, setEvents] = useState(initialEvents);
-  const [reminders, setReminders] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [currentView, setCurrentView] = useState("dayGridMonth");
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const calendarRef = useRef(null);
-  const router = useRouter();
-  const supabase = createClient();
-
-  const [newEvent, setNewEvent] = useState({
-    title: "",
-    type: "assignment",
-    reminderDays: 1,
-  });
-
-  // Check authentication on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-      setUser(user);
-      setAuthLoading(false);
-    };
-    checkAuth();
-  }, [router, supabase.auth]);
-
-  // Generate reminders based on upcoming events
-  const generateReminders = useCallback(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const newReminders = [];
-
-    events.forEach((event) => {
-      const eventDate = new Date(event.start);
-      eventDate.setHours(0, 0, 0, 0);
-      const daysUntil = differenceInDays(eventDate, today);
-
-      // Test reminder (configurable days before)
-      if (event.type === "test") {
-        if (daysUntil > 0 && daysUntil <= (event.reminderDays || 2)) {
-          newReminders.push({
-            id: `reminder-${event.id}`,
-            title: `📚 Study reminder: ${event.title}`,
-            message: `${daysUntil} day${daysUntil > 1 ? "s" : ""} until your test!`,
-            type: "reminder",
-            urgent: daysUntil <= 1,
-          });
-        }
-
-        // Last-minute cram reminder (day before or same day)
-        if (daysUntil === 1) {
-          newReminders.push({
-            id: `cram-${event.id}`,
-            title: `🚨 Last-minute cram: ${event.title}`,
-            message: "Tomorrow is your test! Time for final review!",
-            type: "cram",
-            urgent: true,
-          });
-        } else if (daysUntil === 0) {
-          newReminders.push({
-            id: `today-${event.id}`,
-            title: `📝 Today: ${event.title}`,
-            message: "Your test is TODAY! Good luck!",
-            type: "today",
-            urgent: true,
-          });
-        }
-      }
-
-      // Assignment due soon reminder
-      if (event.type === "assignment" && daysUntil >= 0 && daysUntil <= 2) {
-        newReminders.push({
-          id: `due-${event.id}`,
-          title: `📋 Due soon: ${event.title}`,
-          message:
-            daysUntil === 0
-              ? "Due today!"
-              : `Due in ${daysUntil} day${daysUntil > 1 ? "s" : ""}`,
-          type: daysUntil === 0 ? "today" : "reminder",
-          urgent: daysUntil <= 1,
-        });
-      }
-    });
-
-    setReminders(newReminders);
-  }, [events]);
-=======
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -149,18 +10,36 @@ export default function CalendarPage() {
   const [showModal, setShowModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState(null)
   const [newEvent, setNewEvent] = useState({ title: '', type: 'assignment' })
->>>>>>> Stashed changes
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const router = useRouter()
+  const supabase = createClient()
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
+      setUser(user)
+      setAuthLoading(false)
+    }
+    checkAuth()
+  }, [router, supabase.auth])
 
   useEffect(() => {
-    // Load events from localStorage or fetch from API
-    const saved = localStorage.getItem('studytide-calendar-events')
-    if (saved) {
-      setEvents(JSON.parse(saved))
-    } else {
-      // Fetch assignments from API
-      fetchAssignments()
+    if (!authLoading && user) {
+      // Load events from localStorage or fetch from API
+      const saved = localStorage.getItem('studytide-calendar-events')
+      if (saved) {
+        setEvents(JSON.parse(saved))
+      } else {
+        fetchAssignments()
+      }
     }
-  }, [])
+  }, [authLoading, user])
 
   async function fetchAssignments() {
     try {
@@ -254,17 +133,17 @@ export default function CalendarPage() {
   // Show loading state while checking authentication
   if (authLoading) {
     return (
-      <div className="calendar-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 60px)' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="animate-spin" style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', margin: '0 auto 1rem' }}></div>
-          <p style={{ color: 'white', fontSize: '1rem' }}>Loading calendar...</p>
+      <div className="min-h-[calc(100vh-60px)] flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-3 border-indigo-200 border-t-indigo-600 rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading calendar...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+    <div className="min-h-[calc(100vh-60px)] bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
       <main className="max-w-4xl mx-auto p-6 pt-8">
         <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">📅 Calendar</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">View and manage your schedule</p>
@@ -420,3 +299,4 @@ export default function CalendarPage() {
     </div>
   )
 }
+
