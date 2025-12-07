@@ -8,6 +8,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { format, differenceInDays, addDays } from "date-fns";
+import WorkloadBalanceWidget from "@/components/WorkloadBalanceWidget";
 import "./calendar.css";
 
 // Sample initial events - in a real app, these would come from a database
@@ -281,6 +282,12 @@ export default function CalendarPage() {
               <span className="legend-color assignment"></span>
               <span>📋 Assignments</span>
             </div>
+          </div>
+
+          {/* Workload Balance */}
+          <div className="mt-4">
+            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 px-1">📊 Smart Analysis</h3>
+            <WorkloadBalanceWidget />
           </div>
         </aside>
 
