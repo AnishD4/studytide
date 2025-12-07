@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import DashboardNav from '@/components/DashboardNav'
+import DashboardWidgets from '@/components/DashboardWidgets'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -139,6 +140,9 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </div>
+
+        {/* Smart Widgets - Procrastination Alerts & Quick Tools */}
+        <DashboardWidgets />
 
         {/* Getting Started */}
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-sm p-6 text-white">
